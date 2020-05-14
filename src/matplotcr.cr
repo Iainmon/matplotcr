@@ -37,7 +37,8 @@ module Matplotcr
                    @font : RCFont = RCFont.new("DejaVu Sans", ["normal"]),
                    @latex : Bool = false,
                    @figsize : Tuple(Float64, Float64) | Nil = nil,
-                   @grid : Tuple(Int32, Int32) = {1, 1})
+                   @grid : Tuple(Int32, Int32) = {1, 1},
+                   @color_scheme = "viridis")
       @plots.push(Array(Plot).new)
     end
 
@@ -54,6 +55,7 @@ module Matplotcr
       s = [] of String
       s.push "import matplotlib"
       # s.push "matplotlib.use('Agg')"
+      s.push "from matplotlib.ticker import LinearLocator, FormatStrFormatter"
       s.push "from matplotlib import rc"
       s.push "import matplotlib.pyplot as plt"
       s.push "from matplotlib.lines import Line2D"
@@ -61,6 +63,7 @@ module Matplotcr
       s.push "rc('text', usetex=#{@latex ? "True" : "False"})"
       # s.push "matplotlib.rcParams['text.latex.unicode']=True"
       s.push "plt.rcParams['mathtext.fontset'] = 'cm'"
+      s.push "color_scheme = '#{@color_scheme}'"
       fs = @figsize
       if fs.nil?
         s.push "fig = plt.figure()"
@@ -220,6 +223,24 @@ module Matplotcr
       end
 
       return s.join("\n")
+    end
+
+  end
+
+  class ImShow < Plot
+    def initialize(@path : String)
+    end
+
+    def render : String
+
+      s = [] of String
+
+      s.push "import matplotlib.image as mpimg"
+      s.push "_img = mpimg.imread('#{@path}')"
+
+      s.push "plt.imshow(_img)"
+
+      return s.join "\n"
     end
 
   end
