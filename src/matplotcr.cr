@@ -38,7 +38,8 @@ module Matplotcr
                    @latex : Bool = false,
                    @figsize : Tuple(Float64, Float64) | Nil = nil,
                    @grid : Tuple(Int32, Int32) = {1, 1},
-                   @color_scheme = "viridis")
+                   @color_scheme = "viridis",
+                   @tight_layout = false)
       @plots.push(Array(Plot).new)
     end
 
@@ -59,6 +60,7 @@ module Matplotcr
       s.push "from matplotlib import rc"
       s.push "import matplotlib.pyplot as plt"
       s.push "from matplotlib.lines import Line2D"
+      s.push "import numpy as np"
       s.push "rc('font', **{'family': '#{@font.family}', 'serif': '#{@font.styles.to_s}'})"
       s.push "rc('text', usetex=#{@latex ? "True" : "False"})"
       # s.push "matplotlib.rcParams['text.latex.unicode']=True"
@@ -76,6 +78,7 @@ module Matplotcr
           s.push plot.render
         }
       }
+      s.push "plt.tight_layout()" if @tight_layout
       return s
     end
 
@@ -237,8 +240,46 @@ module Matplotcr
 
       s.push "import matplotlib.image as mpimg"
       s.push "_img = mpimg.imread('#{@path}')"
+      s.push "_z = _img" # For colorbar use
 
       s.push "plt.imshow(_img)"
+
+      return s.join "\n"
+    end
+
+  end
+
+  alias Domain = Tuple(Number, Number, Number)
+
+  alias Map = Array(Array(Float64))
+
+  class Heatmap < Plot
+    
+    # def initialize(@x_domain : Domain, @y_domain : Domain, &block : Number, Number -> Number)
+    # end
+
+    def initialize(@map : Map, @interpolation = "nearest", @origin = "lower", @color_bar = false);end
+
+    def render : String
+
+      s = [] of String
+
+      # domain = (-1, 1, .05)
+      # z = np.array([[ np.sqrt(x**2 + y**2) for x in np.arange(*domain)] for y in np.arange(*domain)])
+
+      a = [] of String
+      a.push "_z = np.array(["
+      @map.each do |row|
+        a.push "[#{convert_list row}],"
+      end
+      a.push "])"
+
+      s.push a.join "\n"
+
+      s.push "_map = plt.imshow(_z, cmap=color_scheme, interpolation='#{@interpolation}', origin='#{@origin}')"
+
+      s.push "plt.colorbar(_map)"
+      # s.push "plt.colorbar(_map, extend='both', shrink=1, aspect=5, ticks=(can be a locator))"
 
       return s.join "\n"
     end
@@ -331,20 +372,43 @@ module Matplotcr
   end
 
   class XLimit < Plot
-    def initialize(@min : Number, @max : Number)
+    def initialize(@min : Number, @max : Number, @ticks : Number | Nil = nil, @no_label = false)
     end
 
     def render : String
-      return "ax=plt.gca()\nax.set_xlim([#{@min},#{@max}])"
+      
+      # return "ax=plt.gca()\nax.set_xlim([#{@min},#{@max}])"
+
+      s = [] of String
+
+      s.push "ax = plt.gca()"
+      s.push "ax.set_xlim([#{@min},#{@max}])"
+
+      s.push "ax.set_xticklabels('')" if @no_label
+
+      s.push "ax.xaxis.set_major_locator(LinearLocator(#{@ticks}))" unless @ticks.nil?
+
+      return s.join "\n"
     end
   end
 
   class YLimit < Plot
-    def initialize(@min : Number, @max : Number)
+    def initialize(@min : Number, @max : Number, @ticks : Number | Nil = nil, @no_label = false)
     end
 
     def render : String
-      return "ax=plt.gca()\nax.set_ylim([#{@min},#{@max}])"
+      # return "ax=plt.gca()\nax.set_ylim([#{@min},#{@max}])"
+
+      s = [] of String
+
+      s.push "ax = plt.gca()"
+      s.push "ax.set_xlim([#{@min},#{@max}])"
+      
+      s.push "ax.set_yticklabels('')" if @no_label
+
+      s.push "ax.yaxis.set_major_locator(LinearLocator(#{@ticks}))" unless @ticks.nil?
+
+      return s.join "\n"
     end
   end
 

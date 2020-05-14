@@ -7,6 +7,9 @@ authors:
 development_dependencies:
   gsl:
     github: ruivieira/crystal-gsl
-
+  num:
+    github: crystal-data/num.cr
+  opencl:
+    github: crystal-data/opencl.cr
 
 license: Apache2.0
