@@ -1,3 +1,12 @@
+{% if flag?(:darwin) %}
+PYTHON_PATH = "/usr/local/bin/python3"
+{% elsif flag?(:linux) %}
+PYTHON_PATH = "/usr/bin/python3"
+{% else %}
+PYTHON_PATH = "/usr/bin/python3"
+{% end %}
+
+
 module Matplotcr
   extend self
 
@@ -18,12 +27,14 @@ module Matplotcr
     end
   end
 
+
+
   class Figure
     @plots = Array(Array(Plot)).new
     @current_index = 0
 
-    def initialize(@python : String = "/usr/local/bin/python3",
-                   @font : RCFont = RCFont.new("sans-serif", ["Lucida Grande"]),
+    def initialize(@python : String = PYTHON_PATH,
+                   @font : RCFont = RCFont.new("DejaVu Sans", ["normal"]),
                    @latex : Bool = false,
                    @figsize : Tuple(Float64, Float64) | Nil = nil,
                    @grid : Tuple(Int32, Int32) = {1, 1})
@@ -39,16 +50,17 @@ module Matplotcr
       @plots.push(Array(Plot).new)
     end
 
-    def save(destination : String, dpi : Int64 | Nil = nil)
-      s = Array(String).new
+    def compile() : Array(String)
+      s = [] of String
       s.push "import matplotlib"
-      s.push "matplotlib.use('Agg')"
+      # s.push "matplotlib.use('Agg')"
       s.push "from matplotlib import rc"
       s.push "import matplotlib.pyplot as plt"
       s.push "from matplotlib.lines import Line2D"
       s.push "rc('font', **{'family': '#{@font.family}', 'serif': '#{@font.styles.to_s}'})"
       s.push "rc('text', usetex=#{@latex ? "True" : "False"})"
-      s.push "matplotlib.rcParams['text.latex.unicode']=True"
+      # s.push "matplotlib.rcParams['text.latex.unicode']=True"
+      s.push "plt.rcParams['mathtext.fontset'] = 'cm'"
       fs = @figsize
       if fs.nil?
         s.push "fig = plt.figure()"
@@ -61,17 +73,46 @@ module Matplotcr
           s.push plot.render
         }
       }
+      return s
+    end
+
+    def save(destination : String, dpi : Int64 | Nil = nil, print_source = false, format = "png", transparent = false)
+
+      s = compile
+
       if dpi.nil?
-        s.push "plt.savefig('#{destination}', format='png', transparent=False)"
+        s.push "plt.savefig('#{destination}', format='#{format}', transparent=#{py_bool transparent})"
       else
-        s.push "plt.savefig('#{destination}', format='png', transparent=False, dpi=#{dpi})"
+        s.push "plt.savefig('#{destination}', format='#{format}', transparent=#{py_bool transparent}, dpi=#{dpi})"
       end
-      puts s.join("\n")
-      # create temporary file for the script
+
+      puts s.join("\n") if print_source
+      
+      run s
+    end
+
+    def show(print_source = false)
+      s = compile
+
+      s.push "plt.show()"
+
+      puts s.join("\n") if print_source
+      
+      run s
+    end
+
+    
+
+    def run(s : Array(String))
       tempfile = File.tempfile("matplotcrystal", ".py")
       File.write(tempfile.path, s.join("\n"))
       system "#{@python} #{tempfile.path}"
     end
+
+    private def py_bool(x : Bool) : String
+      x.to_s.camelcase lower: false
+    end
+
   end
 
   class Title < Plot
