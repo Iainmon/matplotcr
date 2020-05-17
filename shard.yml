@@ -4,13 +4,16 @@ version: 0.1.10
 authors:
   - Rui Vieira <ruidevieira@googlemail.com>
 
-development_dependencies:
-  gsl:
-    github: ruivieira/crystal-gsl
+dependencies:
   num:
     github: iainmon/num.cr
     branch: master
   opencl:
     github: crystal-data/opencl.cr
+
+development_dependencies:
+  gsl:
+    github: ruivieira/crystal-gsl
+
 
 license: Apache2.0
