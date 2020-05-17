@@ -47,6 +47,10 @@ module Matplotcr
       @plots[@current_index].push plot
     end
 
+    def <<(plot : Plot)
+      add plot
+    end
+
     def subplot()
       @current_index += 1
       @plots.push(Array(Plot).new)
@@ -62,7 +66,7 @@ module Matplotcr
       s.push "from matplotlib.lines import Line2D"
       s.push "import numpy as np"
       s.push "rc('font', **{'family': '#{@font.family}', 'serif': '#{@font.styles.to_s}'})"
-      s.push "rc('text', usetex=#{@latex ? "True" : "False"})"
+      s.push "rc('text', usetex=#{py_bool @latex})"
       # s.push "matplotlib.rcParams['text.latex.unicode']=True"
       s.push "plt.rcParams['mathtext.fontset'] = 'cm'"
       s.push "color_scheme = '#{@color_scheme}'"

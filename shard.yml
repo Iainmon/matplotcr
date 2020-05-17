@@ -8,7 +8,8 @@ development_dependencies:
   gsl:
     github: ruivieira/crystal-gsl
   num:
-    github: crystal-data/num.cr
+    github: iainmon/num.cr
+    branch: master
   opencl:
     github: crystal-data/opencl.cr
 
