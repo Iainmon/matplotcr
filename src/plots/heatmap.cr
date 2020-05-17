@@ -1,16 +1,36 @@
 require "./plot"
+require "num"
+
+macro for(expr)
+  ({{expr.args.first.args.first}}).each do |{{expr.name.id}}|
+    {{expr.args.first.block.body}}
+  end
+end
 
 module Matplotcr
-  alias Domain = Tuple(Number, Number, Number)
 
-  alias Map = Array(Array(Float64))
+  alias NumberTensor = Tensor(Number) | Tensor(Float64) | Tensor(Float32) | Tensor(Int32) | Tensor(Int64)
 
   class Heatmap < Plot
+
+    def tensor_to_matrix(tensor)
+      shape = tensor.shape
+      raise "Tensor must have only 2 dimensions!" if shape.size != 2
+      matrix = Array(Array(Number)).new
+      for x in 0...shape.first do
+        matrix << [] of Number
+        for y in 0...shape.last do
+          matrix[x] << tensor[x, y].value
+        end
+      end
+      puts matrix
+      matrix
+    end
     
     # def initialize(@x_domain : Domain, @y_domain : Domain, &block : Number, Number -> Number)
     # end
 
-    def initialize(@map : Map, @interpolation = "nearest", @origin = "lower", @color_bar = false);end
+    def initialize(@map : NumberTensor, @interpolation = "nearest", @origin = "lower", @color_bar = false);end
 
     def render : String
 
@@ -19,10 +39,13 @@ module Matplotcr
       # domain = (-1, 1, .05)
       # z = np.array([[ np.sqrt(x**2 + y**2) for x in np.arange(*domain)] for y in np.arange(*domain)])
 
+
+      map = tensor_to_matrix @map
+
       a = [] of String
       a.push "_z = np.array(["
-      @map.each do |row|
-        a.push "[#{convert_list row}],"
+      map.each do |row|
+        a.push "[#{convert_list row.as(NumberArray)}],"
       end
       a.push "])"
 

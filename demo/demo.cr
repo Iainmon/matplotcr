@@ -35,18 +35,18 @@ domain_y = Num.arange -50, 50
 
 f_map = evaluate f from domain_x, domain_y
 
-map = Matplot::Map.new
+# map = Matplot::Map.new
 
-for x in 0...domain_x.size do
-  map << [] of Float64
-  for y in 0...domain_y.size do
-    map[x] << f_map[x, y].value.to_f
-  end
-end
+# for x in 0...domain_x.size do
+#   map << [] of Float64
+#   for y in 0...domain_y.size do
+#     map[x] << f_map[x, y].value.to_f
+#   end
+# end
 
 
 figure = Matplot::Figure.new color_scheme: "inferno"
-heatmap = Matplot::Heatmap.new map, interpolation: "bilinear"
+heatmap = Matplot::Heatmap.new f_map, interpolation: "bilinear"
 figure << heatmap
 
 figure.show print_source: false
