@@ -3,6 +3,7 @@ version: 0.1.10
 
 authors:
   - Rui Vieira <ruidevieira@googlemail.com>
+  - Iain Moncrief <iainmoncrief@gmail.com>
 
 dependencies:
   num:
@@ -10,7 +11,10 @@ dependencies:
     branch: master
   opencl:
     github: crystal-data/opencl.cr
-
+  essentials:
+    github: iainmon/essentialscr
+    branch: master
+    
 development_dependencies:
   gsl:
     github: ruivieira/crystal-gsl

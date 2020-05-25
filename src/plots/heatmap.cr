@@ -23,7 +23,6 @@ module Matplotcr
           matrix[x] << tensor[x, y].value
         end
       end
-      puts matrix
       matrix
     end
     
