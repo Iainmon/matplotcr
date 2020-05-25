@@ -1,7 +1,6 @@
-![https://gitlab.com/ruivieira/matplotcr](https://gitlab.com/ruivieira/matplotcr/badges/master/pipeline.svg)
 # matplotcr
 
-A Crystal wrapper for matplotlib.
+A Crystal transpiler for matplotlib.
 
 # Features
 
@@ -16,6 +15,9 @@ A Crystal wrapper for matplotlib.
 * Sub-plots
 * Horizontal and vertical limits
 * Custom markers
+* LaTeX
+* Heatmap plots
+* ImShow plots
 
 # Examples
 
@@ -34,7 +36,7 @@ to be installed.
 
 # Contributing
 
-* Fork it (https://gitlab.com/ruivieira/matplotcr)
+* Fork it (https://gitlab.com/iainmon/matplotcr)
 * Create your feature branch (`git checkout -b my-new-feature`)
 * Commit your changes (`git commit -am 'Add some feature'`)
 * Push to the branch (`git push origin my-new-feature`)
